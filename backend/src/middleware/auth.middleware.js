@@ -44,4 +44,26 @@ const verifyUser = async (req, res, next) => {
   }
 };
 
+export const verifyAdmin = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await db.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        role: true,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (user.role !== "ADMIN") {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    next();
+  } catch (error) {}
+};
+
 export default verifyUser;
