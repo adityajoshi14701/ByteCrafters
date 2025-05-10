@@ -44,8 +44,41 @@ export const createProblem = async (req, res) => {
     }
   } catch (error) {}
 };
-export const getAllProblems = async (req, res) => {};
-export const getProblemById = async (req, res) => {};
+export const getAllProblems = async (req, res) => {
+  try {
+    // condition to check if user submitted that problem or not
+    const problems = await db.problem.findMany();
+    if (!problems) {
+      return res.status(404).json({ message: "No problems found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Problems Fetched Successfully",
+      problems,
+    });
+  } catch (error) {
+    console.error("Error fetching problems:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const getProblemById = async (req, res) => {
+  try {
+    const problem = await db.problem.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!problem) {
+      return res.status(404).json({ message: "Problem not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Problem Fetched Successfully",
+      problem,
+    });
+  } catch (error) {
+    console.error("Error fetching problem:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const updateProblemById = async (req, res) => {};
 export const deleteProblemById = async (req, res) => {};
 export const getAllProblemsSolvedByUser = async (req, res) => {};
