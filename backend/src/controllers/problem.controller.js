@@ -1,4 +1,4 @@
-import db from "../libs/db.js";
+import { db } from "../libs/db.js";
 export const createProblem = async (req, res) => {
   // get all the data from req body
   // again check the role of user
@@ -80,5 +80,26 @@ export const getProblemById = async (req, res) => {
   }
 };
 export const updateProblemById = async (req, res) => {};
-export const deleteProblemById = async (req, res) => {};
+export const deleteProblemById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const problem = await db.problem.findUnique({
+      where: { id },
+    });
+    if (!problem) {
+      return res.status(404).json({ message: "Problem not found" });
+    }
+
+    await db.problem.delete({
+      where: { id },
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Problem deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting problem:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const getAllProblemsSolvedByUser = async (req, res) => {};
