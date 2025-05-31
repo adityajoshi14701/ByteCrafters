@@ -4,7 +4,11 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "db:docker": "bash start-databse.sh",
+    "redis:docker": "bash start-redis.sh",
+    "docker:start": "npm run db:docker && npm run redis:docker",
+    "docker:stop": "docker stop -t 20 my-postgres redis"
   },
   "keywords": [],
   "author": "",
