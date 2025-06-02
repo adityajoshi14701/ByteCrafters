@@ -1,6 +1,6 @@
 import express from "express";
-import verifyUser from "../middleware/auth.middleware";
-import { executeCode } from "../controllers/execute-code.controller";
+import verifyUser from "../middleware/auth.middleware.js";
+import { executeCode } from "../controllers/execute-code.controller.js";
 
 const executionRoutes = express.Router();
 

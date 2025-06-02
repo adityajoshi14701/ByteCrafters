@@ -1,4 +1,9 @@
-import { pollBatchResults, submitBatch } from "../libs/judge0.lib";
+import {
+  getLanguageName,
+  pollBatchResults,
+  submitBatch,
+} from "../libs/judge0.lib.js";
+import { all } from "axios";
 
 export const executeCode = async (req, res) => {
   try {
@@ -25,6 +30,7 @@ export const executeCode = async (req, res) => {
     const tokens = submitResponse.map((res) => res.token);
     const results = await pollBatchResults(tokens);
 
+<<<<<<< Updated upstream
     //changes after this comment 
     const testCaseResults = detailedResults.map((result)=>({
       submissionId:  submission.id,
@@ -60,6 +66,87 @@ export const executeCode = async (req, res) => {
       message: "Code executed successfully",
       success:true,
       submission:submissionWithTestCase,  
+=======
+    console.log("Results:", results);
+    let allPassed = true;
+
+    const detailedResults = results.map((result, index) => {
+      const stdout = result.stdout?.trim();
+      const expected_output = expected_outputs[index]?.trim();
+      const passed = stdout === expectedOutput;
+
+      if (!passed) {
+        allPassed = false;
+      }
+
+      return {
+        testCase: index + 1,
+        passed,
+        stdout,
+        expected: expected_output,
+        stderr: result.stderr || null,
+        compileOutput: result.compile_output || null,
+        status: result.status.description,
+        time: result.time ? `${result.time} s` : undefined,
+        memory: result.memory ? `${result.memory} KB` : undefined,
+      };
+      // console.log(`Test Case ${index + 1}`);
+      // console.log(`Input: ${stdin[index]}`);
+      // console.log(`Output: ${stdout}`);
+      // console.log(`Expected: ${expected_output}`);
+      // console.log("Matched :", passed);
+    });
+
+    console.log("detailedResults:", detailedResults);
+
+    const submission = await db.submission.create({
+      data: {
+        userId,
+        problemId,
+        sourceCode: source_code,
+        language: getLanguageName(language_id),
+        stdin: stdin.join("\n"),
+        stdout: JSON.stringify(detailedResults.map((result) => result.stdout)),
+        stderr: detailedResults.some((result) => result.stderr)
+          ? JSON.stringify(detailedResults.map((result) => result.stderr))
+          : null,
+        compileOutput: detailedResults.some((result) => result.compileOutput)
+          ? JSON.stringify(
+              detailedResults.map((result) => result.compileOutput)
+            )
+          : null,
+        status: allPassed ? "Accepted" : "Wrong Answer",
+        memory: detailedResults.some((result) => result.memory)
+          ? JSON.stringify(detailedResults.map((result) => result.memory))
+          : null,
+        time: detailedResults.some((result) => result.time)
+          ? JSON.stringify(detailedResults.map((result) => result.time))
+          : null,
+      },
+    });
+
+    console.log("Submission created:", submission);
+
+    // If all test cases passed, mark the problem as solved
+    if (allPassed) {
+      await db.problemSolved.upsert({
+        where: {
+          userId_problemId: {
+            userId,
+            problemId,
+          },
+        },
+        update: {},
+        create: {
+          userId,
+          problemId,
+        },
+      });
+    }
+    // suggested by ai and added a bookmark in the fixing judge0 video for this
+    res.status(200).json({
+      message: "Code executed successfully",
+>>>>>>> Stashed changes
     });
   } catch (error) {
     console.error("Error executing code:", error);

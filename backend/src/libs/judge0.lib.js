@@ -1,3 +1,4 @@
+import axios from "axios";
 export const getJudge0LanguageId = (language) => {
   const langauageMap = {
     JAVA: 63,
@@ -36,3 +37,12 @@ export const pollBatchResults = async (tokens) => {
     await sleep(1000);
   }
 };
+
+export function getLanguageName(languageId) {
+  const LANGAUAGE_NAMES = {
+    63: "JAVA",
+    62: "JAVASCRIPT",
+    72: "PYTHON",
+  };
+  return LANGAUAGE_NAMES[languageId] || "UNKNOWN";
+}
