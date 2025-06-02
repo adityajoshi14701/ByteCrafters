@@ -30,43 +30,39 @@ export const executeCode = async (req, res) => {
     const tokens = submitResponse.map((res) => res.token);
     const results = await pollBatchResults(tokens);
 
-<<<<<<< Updated upstream
-    //changes after this comment 
-    const testCaseResults = detailedResults.map((result)=>({
-      submissionId:  submission.id,
-      testCase:result.testCase,
+    //changes after this comment
+    const testCaseResults = detailedResults.map((result) => ({
+      submissionId: submission.id,
+      testCase: result.testCase,
       passed: result.passed,
-      stdout:result.stdout,
-      expected:result.expected,
-      stderr:result.stderr,
-      complieOutput:result.complie_output,
-      status:result.status,
-      memory:result.memory,
-      time:result.time
-    }))
+      stdout: result.stdout,
+      expected: result.expected,
+      stderr: result.stderr,
+      complieOutput: result.complie_output,
+      status: result.status,
+      memory: result.memory,
+      time: result.time,
+    }));
 
     await db.testCaseResult.createMany({
-      data:testCaseResults
-    })
+      data: testCaseResults,
+    });
 
     const submissionWithTestCase = await db.submission.findUnique({
-      where:{
-        id:submission.id
+      where: {
+        id: submission.id,
       },
-      include:{
-        testCases:true,
-      }
-    })
-
-
-
+      include: {
+        testCases: true,
+      },
+    });
 
     // suggested by ai and added a bookmark in the fixing judge0 video for this
     res.status(200).json({
       message: "Code executed successfully",
-      success:true,
-      submission:submissionWithTestCase,  
-=======
+      success: true,
+      submission: submissionWithTestCase,
+    });
     console.log("Results:", results);
     let allPassed = true;
 
@@ -146,7 +142,6 @@ export const executeCode = async (req, res) => {
     // suggested by ai and added a bookmark in the fixing judge0 video for this
     res.status(200).json({
       message: "Code executed successfully",
->>>>>>> Stashed changes
     });
   } catch (error) {
     console.error("Error executing code:", error);
