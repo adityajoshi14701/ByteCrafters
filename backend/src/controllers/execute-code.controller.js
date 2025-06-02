@@ -25,15 +25,41 @@ export const executeCode = async (req, res) => {
     const tokens = submitResponse.map((res) => res.token);
     const results = await pollBatchResults(tokens);
 
+    //changes after this comment 
+    const testCaseResults = detailedResults.map((result)=>({
+      submissionId:  submission.id,
+      testCase:result.testCase,
+      passed: result.passed,
+      stdout:result.stdout,
+      expected:result.expected,
+      stderr:result.stderr,
+      complieOutput:result.complie_output,
+      status:result.status,
+      memory:result.memory,
+      time:result.time
+    }))
+
+    await db.testCaseResult.createMany({
+      data:testCaseResults
+    })
+
+    const submissionWithTestCase = await db.submission.findUnique({
+      where:{
+        id:submission.id
+      },
+      include:{
+        testCases:true,
+      }
+    })
+
+
+
+
     // suggested by ai and added a bookmark in the fixing judge0 video for this
     res.status(200).json({
       message: "Code executed successfully",
-      results: results.map((result, index) => ({
-        ...result,
-        expected_output: expected_outputs[index],
-        userId,
-        problemId,
-      })),
+      success:true,
+      submission:submissionWithTestCase,  
     });
   } catch (error) {
     console.error("Error executing code:", error);

@@ -170,4 +170,6 @@ const checkUser = async (req, res) => {
   }
 };
 
+
+
 export { registerUser, loginUser, logoutUser, checkUser };
